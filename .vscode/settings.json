@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "**/*.html": "html",
+        "**/templates/**/*.html": "html",
+        "**/requirements{/**,*}.{txt,in}": "pip-requirements",
+        "*.html": "html",
+        "*.js": "javascript",
+        "xiosbase": "cpp"
+    }
+}
