@@ -87,7 +87,7 @@ class BinTree {
             Node* right = nullptr;
         };
 
-        void all_nodes(Node* node, std::vector<int> vec) const{
+        void all_nodes(Node* node, std::vector<int>& vec) const{
             if(node == nullptr)
                 return;
             this->all_nodes(node->left, vec);
