@@ -1,3 +1,4 @@
+#pragma once
 #include<iostream>
 #include<vector>
 
@@ -9,10 +10,16 @@ class BinTree {
             this->delete_recursive(this->head);
         }
 
-        std::vector<int> get_all_nodes() {
+        std::vector<int> get_all_nodes(Node* node=this->head) {
             std::vector<int> result;
-            this->all_nodes(this->head, result);
+            this->all_nodes(node, result);
             return result;
+        }
+
+        std::vector<int> get_path_to(int& id, Node* node=this->head) {
+            std::vector<int> path;
+            find_path(node, id, path);
+            return path;
         }
 
         bool contains(int& id) const{
@@ -93,6 +100,18 @@ class BinTree {
             this->all_nodes(node->left, vec);
             vec.push_back(node->id);
             this->all_nodes(node->right, vec);
+        }
+
+        void find_node(Node* node, int& id, std::vector<int>& path) {
+            while(node != nullptr){
+                path.push_back(node->id);
+                if(node->id == id)
+                    break;
+                else if(id > node->id)
+                    node = node->right;
+                else if(id < node->id)
+                    node = node->right;
+            }
         }
 
         void delete_recursive(Node* node){

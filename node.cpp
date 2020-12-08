@@ -1,6 +1,7 @@
+#include <zmq.hpp>
+
 #include<iostream>
-#include"zmq.hpp"
-#include<signal.h>
+
 #include"server.h"
 
 
@@ -153,7 +154,7 @@ int main(int argc, char** argv) {
                 if(cmd == "start") {
                     start = std::chrono::high_resolution_clock::now();
                     clock_time = true;
-                    msg = "Ok:" + std::to_string(id);
+                    msg = "OK :" + std::to_string(id);
                     send_msg(socket, msg);
                 }
                 else if(cmd == "stop") {
@@ -161,11 +162,11 @@ int main(int argc, char** argv) {
                         stop = std::chrono::high_resolution_clock::now();
                         time += std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
                         clock_time = false;
-                        msg = "Ok:" + std::to_string(id);
+                        msg = "OK :" + std::to_string(id);
                         send_msg(socket, msg);
                     }
                 } else if(cmd == "time") {
-                    msg = "Ok: " + std::to_string(id) + ": " + std::to_string(time));
+                    msg = "OK : " + std::to_string(id) + ": " + std::to_string(time));
                     send_msg(socket, msg);
                 }
             } else {

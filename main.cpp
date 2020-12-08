@@ -1,9 +1,9 @@
+#include<zmq.hpp>
+
 #include<iostream>
-#include"zmq.hpp"
-#include<vector>
-#include<csignal>
 #include<set>
 #include<algorithm>
+
 #include"server.h"
 #include"struct_server.h"
 
@@ -26,7 +26,6 @@ int main() {
     int input_id;
     std::string result;
     std::string msg;
-    std::string recieved_msg;
 
     while (true) {
         std::cin >> cmd;
@@ -35,7 +34,7 @@ int main() {
             if (child_pid == 0) {
                 child_pid = fork();
                 if (child_pid == -1) {
-                    std::cout << "Unable to create first worker node\n";
+                    std::cout << "Unable to create first worker node" << std::endl;
                     child_pid = 0;
                     exit(1);
                 } else if (child_pid == 0) {
@@ -56,11 +55,11 @@ int main() {
             if (result.substr(0,2) == "OK") {
                 tree.insert(input_id);
             }
-            std::cout << result << "\n";
+            std::cout << result << std::endl;
 
         } else if (cmd == "remove") {
             if (child_pid == 0) {
-                std::cout << "Error: Not found\n";
+                std::cout << "Error: Not found" << std::endl;
                 continue;
             }
 
@@ -70,44 +69,43 @@ int main() {
                 kill(child_pid, SIGKILL);
                 child_id = 0;
                 child_pid = 0;
-                std::cout << "OK\n";
+                std::cout << "OK" << std::endl;
                 tree.erase(input_id);
                 continue;
             }
             msg = "remove " + std::to_string(input_id);
             send_message(main_socket, msg);
-            recieved_msg = recieve_message(main_socket);
-            if (recieved_msg.substr(0, std::min<int>(recieved_msg.size(), 2)) == "OK") {
+            result = recieve_message(main_socket);
+            if (result.substr(0, std::min<int>(result.size(), 2)) == "OK") {
                 tree.erase(input_id);
             }
-            std::cout << recieved_msg << "\n";
+            std::cout << result << std::endl;
 
         } else if (cmd == "exec") {
-            int n;
-            std::cin >> input_id >> n;
-            std::vector<int> numbers(n);
-            for (int i = 0; i < n; ++i) {
-                std::cin >> numbers[i];
+            std::cin >> input_id >> cmd;
+            std::vector<int> path = tree.get_path_to(input_id);
+            if(path.empty()) {
+                std::cout << "Error: Not found" << std::endl;
+                continue;
             }
-
-            msg = "exec " + std::to_string(input_id) + " " + std::to_string(n);
+            path.erase(path.begin());
+            msg = "exec " + std::to_string(cmd) + " " + std::string(path.size());
             for (int i = 0; i < n; ++i) {
-                msg += " " + std::to_string(numbers[i]);
+                msg += " " + std::to_string(path[i]);
             }
-
             send_message(main_socket, msg);
-            recieved_msg = recieve_message(main_socket);
-            std::cout << recieved_msg << "\n";
+            result = recieve_message(main_socket);
+            std::cout << result << std::endl;
 
         } else if (cmd == "pingall") {
             msg = "pingall";
             send_message(main_socket, msg);
-            recieved_msg = recieve_message(main_socket);
+            result = recieve_message(main_socket);
             std::istringstream is;
-            if (recieved_msg.substr(0,std::min<int>(recieved_msg.size(), 5)) == "Error") {
+            if (result.substr(0,std::min<int>(result.size(), 5)) == "Error") {
                 is = std::istringstream("");
             } else {
-                is = std::istringstream(recieved_msg);
+                is = std::istringstream(result);
             }
 
             std::set<int> recieved_tree;
@@ -119,13 +117,13 @@ int main() {
                 return recieved_tree.count(a) == 0;
             });
             if (part_it == from_tree.begin()) {
-                std::cout << "OK: -1\n";
+                std::cout << "OK: -1" << std::endl;
             } else {
                 std::cout << "OK:";
                 for (auto it = from_tree.begin(); it != part_it; ++it) {
                     std::cout << " " << *it;
                 }
-                std::cout << "\n";
+                std::cout << std::endl;
             }
 
         } else if (cmd == "exit") {
