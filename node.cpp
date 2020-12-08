@@ -1,8 +1,13 @@
-#include <zmq.hpp>
+#include<zmq.hpp>
+#include<csignal>
 
 #include<iostream>
+#include<string>
+#include<vector>
+#include<unistd.h>
 
 #include"server.h"
+#include"struct_server.h"
 
 
 
@@ -166,7 +171,7 @@ int main(int argc, char** argv) {
                         send_msg(socket, msg);
                     }
                 } else if(cmd == "time") {
-                    msg = "OK : " + std::to_string(id) + ": " + std::to_string(time));
+                    msg = "OK : " + std::to_string(id) + ": " + std::to_string(time);
                     send_msg(socket, msg);
                 }
             } else {

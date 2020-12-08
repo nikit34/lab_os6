@@ -1,8 +1,10 @@
 #include<zmq.hpp>
+#include <signal.h>
 
 #include<iostream>
 #include<set>
-#include<algorithm>
+#include<string>
+#include<vector>
 
 #include"server.h"
 #include"struct_server.h"
@@ -42,14 +44,14 @@ int main() {
                 } else {
                     child_id = input_id;
                     msg = "pid";
-                    send_message(main_socket, msg);
-                    result = recieve_message(main_socket);
+                    send_msg(main_socket, msg);
+                    result = recieve_msg(main_socket);
                 }
             } else {
                 std::ostringstream msg_stream;
                 msg_stream << "create " << input_id;
-                send_message(main_socket, msg_stream.str());
-                result = recieve_message(main_socket);
+                send_msg(main_socket, msg_stream.str());
+                result = recieve_msg(main_socket);
             }
 
             if (result.substr(0,2) == "OK") {
@@ -74,8 +76,8 @@ int main() {
                 continue;
             }
             msg = "remove " + std::to_string(input_id);
-            send_message(main_socket, msg);
-            result = recieve_message(main_socket);
+            send_msg(main_socket, msg);
+            result = recieve_msg(main_socket);
             if (result.substr(0, std::min<int>(result.size(), 2)) == "OK") {
                 tree.erase(input_id);
             }
@@ -89,18 +91,18 @@ int main() {
                 continue;
             }
             path.erase(path.begin());
-            msg = "exec " + std::to_string(cmd) + " " + std::string(path.size());
-            for (int i = 0; i < n; ++i) {
+            msg = "exec " + cmd + " " + std::to_string(path.size());
+            for (int i = 0; i < input_id; ++i) {
                 msg += " " + std::to_string(path[i]);
             }
-            send_message(main_socket, msg);
-            result = recieve_message(main_socket);
+            send_msg(main_socket, msg);
+            result = recieve_msg(main_socket);
             std::cout << result << std::endl;
 
         } else if (cmd == "pingall") {
             msg = "pingall";
-            send_message(main_socket, msg);
-            result = recieve_message(main_socket);
+            send_msg(main_socket, msg);
+            result = recieve_msg(main_socket);
             std::istringstream is;
             if (result.substr(0,std::min<int>(result.size(), 5)) == "Error") {
                 is = std::istringstream("");
@@ -112,7 +114,7 @@ int main() {
             while (is >> input_id) {
                 recieved_tree.insert(input_id);
             }
-            std::vector from_tree = tree.get_nodes();
+            std::vector<int> from_tree = tree.get_all_nodes();
             auto part_it = std::partition(from_tree.begin(), from_tree.end(), [&recieved_tree] (int a) {
                 return recieved_tree.count(a) == 0;
             });

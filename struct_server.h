@@ -4,21 +4,36 @@
 
 
 class BinTree {
+    private:
+        struct Node {
+            Node(int id): id(id) {}
+            int id;
+            Node* left = nullptr;
+            Node* right = nullptr;
+        };
+
+        Node* head = nullptr;
+
+
     public:
         BinTree() = default;
         ~BinTree(){
             this->delete_recursive(this->head);
         }
 
-        std::vector<int> get_all_nodes(Node* node=this->head) {
+        std::vector<int> get_all_nodes(Node* node=nullptr) {
             std::vector<int> result;
+            if (node == nullptr)
+                node = this->head;
             this->all_nodes(node, result);
             return result;
         }
 
-        std::vector<int> get_path_to(int& id, Node* node=this->head) {
+        std::vector<int> get_path_to(int& id, Node* node=nullptr) {
             std::vector<int> path;
-            find_path(node, id, path);
+            if (node == nullptr)
+                node = this->head;
+            this->find_path(node, id, path);
             return path;
         }
 
@@ -87,12 +102,6 @@ class BinTree {
         }
 
     private:
-        struct Node {
-            Node(int id): id(id) {}
-            int id;
-            Node* left = nullptr;
-            Node* right = nullptr;
-        };
 
         void all_nodes(Node* node, std::vector<int>& vec) const{
             if(node == nullptr)
@@ -102,7 +111,7 @@ class BinTree {
             this->all_nodes(node->right, vec);
         }
 
-        void find_node(Node* node, int& id, std::vector<int>& path) {
+        void find_path(Node* node, int& id, std::vector<int>& path) {
             while(node != nullptr){
                 path.push_back(node->id);
                 if(node->id == id)
@@ -121,8 +130,6 @@ class BinTree {
             delete_recursive(node->left);
             delete node;
         }
-
-        Node* head = nullptr;
 
         friend class TestBitTree;
 };

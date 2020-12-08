@@ -19,10 +19,11 @@ std::string recieve_msg(zmq::socket_t& socket) {
 }
 
 std::string get_port(int& port) {
-    return std::to_string("tcp://127.0.0.1:" + std::to_string(port));
+    return "tcp://127.0.0.1:" + std::to_string(port);
 }
 
-int bind_socket(zmq::socket_t& socket, int& port=3000) {
+int bind_socket(zmq::socket_t& socket) {
+    int port = 3000;
     while (true) {
         try {
             socket.bind(get_port(port));

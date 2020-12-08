@@ -1,6 +1,6 @@
 #include"../struct_server.h"
-#include <iostream>
-#include <cassert>
+#include<iostream>
+#include<cassert>
 
 
 class TestBitTree {
