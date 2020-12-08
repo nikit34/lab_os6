@@ -54,7 +54,7 @@ int main() {
             }
 
             if (result.substr(0,2) == "OK") {
-                ids.insert(input_id);
+                tree.insert(input_id);
             }
             std::cout << result << "\n";
 
@@ -71,26 +71,26 @@ int main() {
                 child_id = 0;
                 child_pid = 0;
                 std::cout << "OK\n";
-                ids.erase(input_id);
+                tree.erase(input_id);
                 continue;
             }
             msg = "remove " + std::to_string(input_id);
             send_message(main_socket, msg);
             recieved_msg = recieve_message(main_socket);
             if (recieved_msg.substr(0, std::min<int>(recieved_msg.size(), 2)) == "OK") {
-                ids.erase(input_id);
+                tree.erase(input_id);
             }
             std::cout << recieved_msg << "\n";
 
         } else if (cmd == "exec") {
-            int id, n;
-            std::cin >> id >> n;
+            int n;
+            std::cin >> input_id >> n;
             std::vector<int> numbers(n);
             for (int i = 0; i < n; ++i) {
                 std::cin >> numbers[i];
             }
 
-            msg = "exec " + std::to_string(id) + " " + std::to_string(n);
+            msg = "exec " + std::to_string(input_id) + " " + std::to_string(n);
             for (int i = 0; i < n; ++i) {
                 msg += " " + std::to_string(numbers[i]);
             }
@@ -110,14 +110,13 @@ int main() {
                 is = std::istringstream(recieved_msg);
             }
 
-            std::set<int> recieved_ids;
-            int rec_id;
-            while (is >> rec_id) {
-                recieved_ids.insert(rec_id);
+            std::set<int> recieved_tree;
+            while (is >> input_id) {
+                recieved_tree.insert(input_id);
             }
-            std::vector from_tree = ids.get_nodes();
-            auto part_it = std::partition(from_tree.begin(), from_tree.end(), [&recieved_ids] (int a) {
-                return recieved_ids.count(a) == 0;
+            std::vector from_tree = tree.get_nodes();
+            auto part_it = std::partition(from_tree.begin(), from_tree.end(), [&recieved_tree] (int a) {
+                return recieved_tree.count(a) == 0;
             });
             if (part_it == from_tree.begin()) {
                 std::cout << "OK: -1\n";

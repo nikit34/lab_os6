@@ -1,7 +1,7 @@
 #include<iostream>
 #include"zmq.hpp"
 #include<signal.h>
-#include"./server.h"
+#include"server.h"
 
 
 
@@ -41,11 +41,15 @@ int main(int argc, char** argv) {
 
     int input_id;
 
+    auto start = std::chrono::high_resolution_clock::now();
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto time = 0;
+    bool clock_time = false;
+
     while (true) {
         request = recieve_msg(socket);
         std::istringstream cmd_stream(request);
         cmd_stream >> cmd;
-
         if (cmd == "id") {
             msg = "OK: " + std::to_string(id);
             send_msg(socket, msg);
@@ -138,27 +142,61 @@ int main(int argc, char** argv) {
             }
 
         } else if (cmd == "exec") {
-            cmd_stream >> user_id;
-            if (user_id == id) {
-                msg = "Node is available";
-                send_msg(socket, msg);
-            } else if (user_id < id) {
-                if (left_pid == 0) {
-                    msg = "Error:" + std::to_string(user_id) + ": Not found";
+            std::ostringstream res;
+            int size;
+            cmd_stream >> cmd >> size;
+            std::vector<int> path(size);
+            for(int i = 0; i < size; ++i){
+                cmd_stream >> path[i];
+            }
+            if(path.empty()) {
+                if(cmd == "start") {
+                    start = std::chrono::high_resolution_clock::now();
+                    clock_time = true;
+                    msg = "Ok:" + std::to_string(id);
                     send_msg(socket, msg);
-                } else {
-                    send_msg(left_socket, request);
-                    send_msg(socket, recieve_msg(left_socket));
+                }
+                else if(cmd == "stop") {
+                    if(clock_time) {
+                        stop = std::chrono::high_resolution_clock::now();
+                        time += std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+                        clock_time = false;
+                        msg = "Ok:" + std::to_string(id);
+                        send_msg(socket, msg);
+                    }
+                } else if(cmd == "time") {
+                    msg = "Ok: " + std::to_string(id) + ": " + std::to_string(time));
+                    send_msg(socket, msg);
                 }
             } else {
-                if (right_pid == 0) {
-                    msg = "Error:" + std::to_string(user_id) + ": Not found";
+                int next_id = path.front();
+                path.erase(path.begin());
+                res << "exec " << cmd << " " << path.size();
+                for(int i: path){
+                    res << " " << i;
+                }
+                if (next_id == id) {
+                    msg = "Node is available";
                     send_msg(socket, msg);
+                } else if (next_id < id) {
+                    if (left_pid == 0) {
+                        msg = "Error:" + std::to_string(next_id) + ": Not found";
+                        send_msg(socket, msg);
+                    } else {
+                        send_msg(left_socket, request);
+                        send_msg(socket, recieve_msg(left_socket));
+                    }
                 } else {
-                    send_msg(right_socket, request);
-                    send_msg(socket, recieve_msg(right_socket));
+                    if (right_pid == 0) {
+                        msg = "Error:" + std::to_string(next_id) + ": Not found";
+                        send_msg(socket, msg);
+                    } else {
+                        send_msg(right_socket, request);
+                        send_msg(socket, recieve_msg(right_socket));
+                    }
                 }
             }
+
         } else if (cmd == "pingall") {
             std::ostringstream res;
             std::string left_res;
