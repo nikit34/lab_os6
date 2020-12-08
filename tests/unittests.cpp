@@ -1,4 +1,4 @@
-#include"./../struct_server.cpp"
+#include"../struct_server.h"
 #include <iostream>
 #include <cassert>
 
@@ -50,7 +50,6 @@ class TestBitTree {
                 this->tree->erase(i);
             assert(this->get_size_tree(this->tree->head) == 0 && "[ERROR] tree is not empty");
             std::cout << "test_erase - done " << std::endl;
-
         }
 
     private:
