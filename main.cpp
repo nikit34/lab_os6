@@ -50,7 +50,7 @@ int main() {
     print_menu();
     while (true) {
         std::cin >> cmd;
-        if (cmd == "create" || cmd == "c") {
+        if (cmd == "create") {
             std::cin >> input_id;
             if (child_pid == 0) {
                 child_pid = fork();
@@ -152,7 +152,7 @@ int main() {
                 std::cout << std::endl;
             }
 
-        } else if (cmd == "heartbeat" || cmd == "h") {
+        } else if (cmd == "heartbeat") {
             int timing;
             std::cin >> timing;
             if (child_pid == 0) {
@@ -176,7 +176,6 @@ int main() {
                 if (timing < 0)
                     break;
             }
-
 
         } else if (cmd == "menu") {
             print_menu();
