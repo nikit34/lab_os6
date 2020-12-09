@@ -42,14 +42,19 @@ int main(int argc, char** argv) {
     std::string cmd;
     std::string subcmd;
 
+    int value;
+
     std::ostringstream res;
+    std::string left_res;
+    std::string right_res;
 
     int input_id;
 
-    auto start = std::chrono::high_resolution_clock::now();
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto time = 0;
-    bool clock_time = false;
+    auto start_clock = std::chrono::high_resolution_clock::now();
+    auto stop_clock = std::chrono::high_resolution_clock::now();
+    auto time_clock = 0;
+    bool flag_clock = false;
+
 
     while (true) {
         request = recieve_msg(parent_socket);
@@ -146,26 +151,25 @@ int main(int argc, char** argv) {
             }
 
         } else if (cmd == "exec") {
-            int size;
-            cmd_stream >> subcmd >> size;
-            std::vector<int> path(size);
-            for(int i = 0; i < size; ++i){
+            cmd_stream >> subcmd >> value;
+            std::vector<int> path(value);
+            for(int i = 0; i < value; ++i){
                 cmd_stream >> path[i];
             }
             if(path.empty()) {
                 msg = "OK: " + std::to_string(id) + " " + subcmd;
                 if(subcmd == "start") {
-                    start = std::chrono::high_resolution_clock::now();
-                    clock_time = true;
+                    start_clock = std::chrono::high_resolution_clock::now();
+                    flag_clock = true;
                 }
                 else if(subcmd == "stop") {
-                    if(clock_time) {
-                        stop = std::chrono::high_resolution_clock::now();
-                        time += std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
-                        clock_time = false;
+                    if(flag_clock) {
+                        stop_clock = std::chrono::high_resolution_clock::now();
+                        time_clock += std::chrono::duration_cast<std::chrono::milliseconds>(stop_clock - start_clock).count();
+                        flag_clock = false;
                     }
                 } else if(subcmd == "time") {
-                    msg += ": " + std::to_string(time);
+                    msg += ": " + std::to_string(time_clock);
                 }
                 send_msg(parent_socket, msg);
             } else {
@@ -188,8 +192,6 @@ int main(int argc, char** argv) {
             }
 
         } else if (cmd == "pingall") {
-            std::string left_res;
-            std::string right_res;
             msg = "pingall";
             if (left_pid != 0) {
                 send_msg(left_socket, msg);
@@ -199,13 +201,17 @@ int main(int argc, char** argv) {
                 send_msg(right_socket, msg);
                 right_res = recieve_msg(right_socket);
             }
-            if (!left_res.empty() && left_res.substr(std::min<int>(left_res.size(), 5)) != "Error") {
+            if (!left_res.empty() && left_res.substr(0, 5) != "Error") {
                 res << left_res;
             }
-            if (!right_res.empty() && right_res.substr(std::min<int>(right_res.size(), 5)) != "Error") {
+            if (!right_res.empty() && right_res.substr(0, 5) != "Error") {
                 res << right_res;
             }
             send_msg(parent_socket, res.str());
+
+        } else if (cmd == "heartbeat") {
+            msg = "OK: " + std::to_string(id);
+            send_msg(parent_socket, msg);
 
         } else if (cmd == "kill_child") {
             if (left_pid == 0 && right_pid == 0) {

@@ -15,8 +15,9 @@ void print_menu(){
 	std::cout << "----------------------------------" << std::endl
     << "create [id]" << std::endl
 	<< "remove [id]" << std::endl
-	<< "exec [id] [cmd]" << std::endl
+	<< "exec [id] [cmd - start/stop/time]" << std::endl
 	<< "pingall" << std::endl
+    << "heartbeat [time (ms)]" << std::endl
 	<< "menu" << std::endl
 	<< "exit" << std::endl
     << "----------------------------------" << std::endl;
@@ -41,10 +42,15 @@ int main() {
     std::string cmd;
     std::string subcmd;
 
+    auto start_heartbeat = std::chrono::high_resolution_clock::now();
+    auto stop_heartbeat = std::chrono::high_resolution_clock::now();
+    auto time_heartbeat = 0;
+
+
     print_menu();
     while (true) {
         std::cin >> cmd;
-        if (cmd == "create") {
+        if (cmd == "create" || cmd == "c") {
             std::cin >> input_id;
             if (child_pid == 0) {
                 child_pid = fork();
@@ -91,20 +97,20 @@ int main() {
             msg = "remove " + std::to_string(input_id);
             send_msg(main_socket, msg);
             result = recieve_msg(main_socket);
-            if (result.substr(0, std::min<int>(result.size(), 2)) == "OK") {
+            if (result.substr(0, 2) == "OK") {
                 tree.erase(input_id);
             }
             std::cout << result << std::endl;
 
         } else if (cmd == "exec") {
-            std::cin >> input_id >> cmd;
+            std::cin >> input_id >> subcmd;
             std::vector<int> path = tree.get_path_to(input_id);
             if(path.empty()) {
                 std::cout << "Error: Not found" << std::endl;
                 continue;
             }
             path.erase(path.begin());
-            msg = "exec " + cmd + " " + std::to_string(path.size());
+            msg = "exec " + subcmd + " " + std::to_string(path.size());
             for (int i = 0; i < input_id; ++i) {
                 msg += " " + std::to_string(path[i]);
             }
@@ -122,7 +128,7 @@ int main() {
             result = recieve_msg(main_socket);
 
             std::istringstream is;
-            if (result.substr(0, std::min<int>(result.size(), 5)) == "Error") {
+            if (result.substr(0, 5) == "Error") {
                 is = std::istringstream("");
             } else {
                 is = std::istringstream(result);
@@ -146,13 +152,39 @@ int main() {
                 std::cout << std::endl;
             }
 
+        } else if (cmd == "heartbeat" || cmd == "h") {
+            int timing;
+            std::cin >> timing;
+            if (child_pid == 0) {
+                std::cout << "Error: Not found" << std::endl;
+                continue;
+            }
+            msg = "heartbeat";
+
+            while(true) {
+                start_heartbeat = std::chrono::high_resolution_clock::now();
+                do {
+                    stop_heartbeat = std::chrono::high_resolution_clock::now();
+                    time_heartbeat = std::chrono::duration_cast<std::chrono::milliseconds>(stop_heartbeat - start_heartbeat).count();
+                } while(time_heartbeat < timing);
+
+                send_msg(main_socket, msg);
+                result = recieve_msg(main_socket);
+                std::cout << result << std::endl;
+
+                time_heartbeat = 0;
+                if (timing < 0)
+                    break;
+            }
+
+
         } else if (cmd == "menu") {
             print_menu();
         } else if (cmd == "exit") {
             if (child_pid > 0) {
                 send_msg(main_socket, "kill_child");
                 result = recieve_msg(main_socket);
-                if (result.substr(0, std::min<int>(result.size(), 2)) == "OK") {
+                if (result.substr(0, 2) == "OK") {
                     kill(child_pid, SIGTERM);
                     kill(child_pid, SIGKILL);
                     child_id = 0;
