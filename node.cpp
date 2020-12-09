@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
     std::string request;
     std::string msg;
     std::string cmd;
+    std::string subcmd;
 
     std::ostringstream res;
 
@@ -146,56 +147,43 @@ int main(int argc, char** argv) {
 
         } else if (cmd == "exec") {
             int size;
-            cmd_stream >> cmd >> size;
+            cmd_stream >> subcmd >> size;
             std::vector<int> path(size);
             for(int i = 0; i < size; ++i){
                 cmd_stream >> path[i];
             }
             if(path.empty()) {
-                if(cmd == "start") {
+                msg = "OK: " + std::to_string(id) + " " + subcmd;
+                if(subcmd == "start") {
                     start = std::chrono::high_resolution_clock::now();
                     clock_time = true;
-                    msg = "OK :" + std::to_string(id);
-                    send_msg(parent_socket, msg);
                 }
-                else if(cmd == "stop") {
+                else if(subcmd == "stop") {
                     if(clock_time) {
                         stop = std::chrono::high_resolution_clock::now();
                         time += std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
                         clock_time = false;
-                        msg = "OK :" + std::to_string(id);
-                        send_msg(parent_socket, msg);
                     }
-                } else if(cmd == "time") {
-                    msg = "OK : " + std::to_string(id) + ": " + std::to_string(time);
-                    send_msg(parent_socket, msg);
+                } else if(subcmd == "time") {
+                    msg += ": " + std::to_string(time);
                 }
+                send_msg(parent_socket, msg);
             } else {
-                int next_id = path.front();
+                input_id = path.front();
                 path.erase(path.begin());
-                res << "exec " << cmd << " " << path.size();
+                res << "exec " << subcmd << " " << path.size();
                 for(int i: path){
                     res << " " << i;
                 }
-                if (next_id == id) {
+                if (input_id == id) {
                     msg = "Node is available";
                     send_msg(parent_socket, msg);
-                } else if (next_id < id) {
-                    if (left_pid == 0) {
-                        msg = "Error:" + std::to_string(next_id) + ": Not found";
-                        send_msg(parent_socket, msg);
-                    } else {
-                        send_msg(left_socket, request);
-                        send_msg(parent_socket, recieve_msg(left_socket));
-                    }
+                } else if (input_id < id) {
+                    send_msg(left_socket, res.str());
+                    send_msg(parent_socket, recieve_msg(left_socket));
                 } else {
-                    if (right_pid == 0) {
-                        msg = "Error:" + std::to_string(next_id) + ": Not found";
-                        send_msg(parent_socket, msg);
-                    } else {
-                        send_msg(right_socket, request);
-                        send_msg(parent_socket, recieve_msg(right_socket));
-                    }
+                    send_msg(right_socket, res.str());
+                    send_msg(parent_socket, recieve_msg(right_socket));
                 }
             }
 

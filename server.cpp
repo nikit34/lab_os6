@@ -24,7 +24,7 @@ std::string recieve_msg(zmq::socket_t& socket) {
     }
     std::string recieve_msg(static_cast<char*>(request.data()), request.size());
     if (recieve_msg.empty() || !answer)
-        return "Error: Node is not available";
+        return "Error: Node is not available 5xx";
     else
         return recieve_msg;
 }

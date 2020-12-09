@@ -13,9 +13,9 @@
 
 void print_menu(){
 	std::cout << "----------------------------------" << std::endl
-    << "create [child id]" << std::endl
+    << "create [id]" << std::endl
 	<< "remove [id]" << std::endl
-	<< "exec [id]" << std::endl
+	<< "exec [id] [cmd]" << std::endl
 	<< "pingall" << std::endl
 	<< "menu" << std::endl
 	<< "exit" << std::endl
@@ -25,8 +25,6 @@ void print_menu(){
 
 int main() {
     BinTree tree;
-
-    std::string cmd;
 
     int child_pid = 0;
     int child_id = 0;
@@ -40,6 +38,8 @@ int main() {
     int input_id;
     std::string result;
     std::string msg;
+    std::string cmd;
+    std::string subcmd;
 
     print_menu();
     while (true) {
