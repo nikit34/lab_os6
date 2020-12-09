@@ -11,6 +11,17 @@
 
 
 
+void print_menu(){
+	std::cout << "create [parent id] [child id]" << std::endl
+	<< "remove [id]" << std::endl
+	<< "exec [id] [n] [k1, k2, ...]" << std::endl
+	<< "pingall" << std::endl
+	<< "ids" << std::endl
+	<< "menu" << std::endl
+	<< "exit" << std::endl;
+}
+
+
 int main() {
     BinTree tree;
 
@@ -18,11 +29,11 @@ int main() {
 
     int child_pid = 0;
     int child_id = 0;
+
     zmq::context_t context(1);
     zmq::socket_t main_socket(context, ZMQ_REQ);
-    int linger = 0;
-    main_socket.setsockopt(ZMQ_SNDTIMEO, 2000);
-    main_socket.setsockopt(ZMQ_LINGER, &linger, sizeof(linger));
+
+    main_socket.set(zmq::sockopt::sndtimeo, 2000);
     int port = bind_socket(main_socket);
 
     int input_id;
@@ -130,6 +141,8 @@ int main() {
 
         } else if (cmd == "exit") {
             break;
+        } else if (cmd == "menu") {
+            print_menu();
         }
     }
     return 0;

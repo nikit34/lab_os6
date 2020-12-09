@@ -58,18 +58,18 @@ class BinTree {
             Node* tmp = this->head;
             while(tmp != nullptr){
                 if(tmp->id == id)
-                    return;
+                    break;
                 else if(id < tmp->id){
                     if(tmp->left == nullptr){
                         tmp->left = new Node(id);
-                        return;
+                        break;
                     }
                     tmp = tmp->left;
                 }
                 else if(id > tmp->id){
                     if(tmp->right == nullptr){
                         tmp->right = new Node(id);
-                        return;
+                        break;
                     }
                     tmp = tmp->right;
                 }
