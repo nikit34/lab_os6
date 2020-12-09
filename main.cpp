@@ -113,6 +113,10 @@ int main() {
             std::cout << result << std::endl;
 
         } else if (cmd == "pingall") {
+            if (child_pid == 0) {
+                std::cout << "Error: Not found" << std::endl;
+                continue;
+            }
             msg = "pingall";
             send_msg(main_socket, msg);
             result = recieve_msg(main_socket);

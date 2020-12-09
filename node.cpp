@@ -190,13 +190,12 @@ int main(int argc, char** argv) {
         } else if (cmd == "pingall") {
             std::string left_res;
             std::string right_res;
+            msg = "pingall";
             if (left_pid != 0) {
-                msg = "pingall";
                 send_msg(left_socket, msg);
                 left_res = recieve_msg(left_socket);
             }
             if (right_pid != 0) {
-                msg = "pingall";
                 send_msg(right_socket, msg);
                 right_res = recieve_msg(right_socket);
             }
