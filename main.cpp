@@ -145,6 +145,18 @@ int main() {
         } else if (cmd == "menu") {
             print_menu();
         } else if (cmd == "exit") {
+            if (child_pid > 0) {
+                send_msg(main_socket, "kill_child");
+                result = recieve_msg(main_socket);
+                if (result.substr(0, std::min<int>(result.size(), 2)) == "OK") {
+                    kill(child_pid, SIGTERM);
+                    kill(child_pid, SIGKILL);
+                    child_id = 0;
+                    child_pid = 0;
+                    std::cout << "OK" << std::endl;
+                    tree.erase(input_id);
+                }
+            }
             break;
         }
     }

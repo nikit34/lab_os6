@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
                     msg = "Error: Not found";
                     send_msg(parent_socket, msg);
                 } else if (left_id == input_id) {
-                    msg = "kill_children";
+                    msg = "kill_child";
                     send_msg(left_socket, msg);
                     msg = recieve_msg(left_socket);
                     kill(left_pid, SIGTERM);
@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
                     msg = "Error: Not found";
                     send_msg(parent_socket, msg);
                 } else if (right_id == input_id) {
-                    msg = "kill_children";
+                    msg = "kill_child";
                     send_msg(right_socket, msg);
                     msg = recieve_msg(right_socket);
                     kill(right_pid, SIGTERM);
@@ -220,20 +220,20 @@ int main(int argc, char** argv) {
             }
             send_msg(parent_socket, res.str());
 
-        } else if (cmd == "kill_children") {
+        } else if (cmd == "kill_child") {
             if (left_pid == 0 && right_pid == 0) {
                 msg = "OK";
                 send_msg(parent_socket, msg);
             } else {
                 if (left_pid != 0) {
-                    msg = "kill_children";
+                    msg = "kill_child";
                     send_msg(left_socket, msg);
                     recieve_msg(left_socket);
                     kill(left_pid, SIGTERM);
                     kill(left_pid, SIGKILL);
                 }
                 if (right_pid != 0) {
-                    msg = "kill_children";
+                    msg = "kill_child";
                     send_msg(right_socket, msg);
                     recieve_msg(right_socket);
                     kill(right_pid, SIGTERM);
