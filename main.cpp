@@ -13,7 +13,7 @@
 
 void print_menu(){
 	std::cout << "----------------------------------" << std::endl
-    << "create [parent id] [child id]" << std::endl
+    << "create [child id]" << std::endl
 	<< "remove [id]" << std::endl
 	<< "exec [id]" << std::endl
 	<< "pingall" << std::endl

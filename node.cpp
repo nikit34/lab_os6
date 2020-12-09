@@ -115,12 +115,11 @@ int main(int argc, char** argv) {
                 } else if (left_id == input_id) {
                     msg = "kill_children";
                     send_msg(left_socket, msg);
-                    recieve_msg(left_socket);
+                    msg = recieve_msg(left_socket);
                     kill(left_pid, SIGTERM);
                     kill(left_pid, SIGKILL);
                     left_id = 0;
                     left_pid = 0;
-                    msg = "OK";
                     send_msg(parent_socket, msg);
                 } else {
                     send_msg(left_socket, request);
@@ -133,12 +132,11 @@ int main(int argc, char** argv) {
                 } else if (right_id == input_id) {
                     msg = "kill_children";
                     send_msg(right_socket, msg);
-                    recieve_msg(right_socket);
+                    msg = recieve_msg(right_socket);
                     kill(right_pid, SIGTERM);
                     kill(right_pid, SIGKILL);
                     right_id = 0;
                     right_pid = 0;
-                    msg = "OK";
                     send_msg(parent_socket, msg);
                 } else {
                     send_msg(right_socket, request);
