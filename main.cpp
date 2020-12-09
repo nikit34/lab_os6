@@ -12,13 +12,14 @@
 
 
 void print_menu(){
-	std::cout << "create [parent id] [child id]" << std::endl
+	std::cout << "----------------------------------" << std::endl
+    << "create [parent id] [child id]" << std::endl
 	<< "remove [id]" << std::endl
-	<< "exec [id] [n] [k1, k2, ...]" << std::endl
+	<< "exec [id]" << std::endl
 	<< "pingall" << std::endl
-	<< "ids" << std::endl
 	<< "menu" << std::endl
-	<< "exit" << std::endl;
+	<< "exit" << std::endl
+    << "----------------------------------" << std::endl;
 }
 
 
@@ -40,6 +41,7 @@ int main() {
     std::string result;
     std::string msg;
 
+    print_menu();
     while (true) {
         std::cin >> cmd;
         if (cmd == "create") {
@@ -114,8 +116,9 @@ int main() {
             msg = "pingall";
             send_msg(main_socket, msg);
             result = recieve_msg(main_socket);
+
             std::istringstream is;
-            if (result.substr(0,std::min<int>(result.size(), 5)) == "Error") {
+            if (result.substr(0, std::min<int>(result.size(), 5)) == "Error") {
                 is = std::istringstream("");
             } else {
                 is = std::istringstream(result);
@@ -139,10 +142,10 @@ int main() {
                 std::cout << std::endl;
             }
 
-        } else if (cmd == "exit") {
-            break;
         } else if (cmd == "menu") {
             print_menu();
+        } else if (cmd == "exit") {
+            break;
         }
     }
     return 0;

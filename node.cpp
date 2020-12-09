@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     int right_pid = 0;
     int left_id = 0;
     int right_id = 0;
-    
+
     zmq::socket_t left_socket(context, ZMQ_REQ);
     zmq::socket_t right_socket(context, ZMQ_REQ);
 
@@ -40,6 +40,8 @@ int main(int argc, char** argv) {
     std::string request;
     std::string msg;
     std::string cmd;
+
+    std::ostringstream res;
 
     int input_id;
 
@@ -145,7 +147,6 @@ int main(int argc, char** argv) {
             }
 
         } else if (cmd == "exec") {
-            std::ostringstream res;
             int size;
             cmd_stream >> cmd >> size;
             std::vector<int> path(size);
@@ -201,7 +202,6 @@ int main(int argc, char** argv) {
             }
 
         } else if (cmd == "pingall") {
-            std::ostringstream res;
             std::string left_res;
             std::string right_res;
             if (left_pid != 0) {
