@@ -1,9 +1,8 @@
 #pragma once
 #include<zmq.hpp>
-
+#include<unistd.h>
 #include<iostream>
 #include<string>
-
 
 
 bool send_msg(zmq::socket_t& socket, const std::string& msg);

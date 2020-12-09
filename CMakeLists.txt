@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(network_cpp)
+project(6_network_nods)
 
 
 add_executable(main main.cpp struct_server.h)
